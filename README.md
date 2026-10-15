@@ -2,9 +2,9 @@
 
 **Which diabetes patients return to the hospital within 30 days — and how can hospitals and insurers spot them early?**
 
-Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) using SQL (BigQuery), with Python modelling and a Tableau dashboard to follow.
+Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) using SQL (BigQuery), Python (risk model) and Tableau.
 
-> 🔄 **Status:** SQL analysis ✅ · Python EDA + risk model ✅ · Tableau dashboard planned
+> 📊 **Interactive dashboard:** [Diabetes Readmission Risk Monitor on Tableau Public](https://public.tableau.com/views/DiabetesReadmissionRiskMonitor/ReadmissionRiskMonitor)
 
 ---
 
@@ -30,7 +30,7 @@ Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) usi
 
 - **SQL / Google BigQuery** — data loading, quality checks, cleaning, risk-factor analysis
 - **Python / Google Colab** (pandas, matplotlib, scikit-learn) — EDA & logistic regression risk model
-- **Tableau** — risk monitoring dashboard *(planned)*
+- **Tableau Public** — [Readmission Risk Monitor dashboard](https://public.tableau.com/views/DiabetesReadmissionRiskMonitor/ReadmissionRiskMonitor)
 
 ---
 
@@ -121,6 +121,19 @@ The HbA1c test was **not performed in 83% of encounters**, and this group has th
 - **Confounding example:** the number of medications raised risk in the univariate SQL analysis, but its effect is ~0 in the model. More medications mark *sicker* patients (more diagnoses, longer stays, prior admissions) — once severity is accounted for, medications themselves add little. Correlation ≠ causation.
 
 **Limitations:** AUC 0.66 is typical for this dataset — key drivers of readmission (social situation, post-discharge care, lab values after discharge) are not recorded. The model is a screening aid for prioritizing follow-up, not a clinical decision tool. Data is from US hospitals, 1999–2008.
+
+---
+
+## 📊 Dashboard
+
+**[▶ Open the interactive dashboard on Tableau Public](https://public.tableau.com/views/DiabetesReadmissionRiskMonitor/ReadmissionRiskMonitor)**
+
+One-page risk monitor for hospital and insurer audiences:
+- readmission "risk staircase" by prior inpatient visits (8.6% → 37.1%)
+- actual readmission rate by **model risk group** (Low 6.9% → Very high 25.6%)
+- risk by discharge destination and by age group (peak at 20–30)
+
+Color encodes risk level throughout: darker = higher readmission rate.
 
 ---
 
