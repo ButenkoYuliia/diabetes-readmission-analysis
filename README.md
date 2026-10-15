@@ -4,7 +4,7 @@
 
 Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) using SQL (BigQuery), with Python modelling and a Tableau dashboard to follow.
 
-> 🔄 **Status:** SQL analysis complete · Python (EDA + risk model) in progress · Tableau dashboard planned
+> 🔄 **Status:** SQL analysis ✅ · Python EDA + risk model ✅ · Tableau dashboard planned
 
 ---
 
@@ -29,7 +29,7 @@ Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) usi
 ## 🛠️ Tools
 
 - **SQL / Google BigQuery** — data loading, quality checks, cleaning, risk-factor analysis
-- **Python** (pandas, seaborn, scikit-learn) — EDA & logistic regression *(in progress)*
+- **Python / Google Colab** (pandas, matplotlib, scikit-learn) — EDA & logistic regression risk model
 - **Tableau** — risk monitoring dashboard *(planned)*
 
 ---
@@ -53,6 +53,8 @@ Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) usi
 ---
 
 ## 🔍 Key Findings
+
+![Risk factors](images/risk_factors.png)
 
 ### 1. A quarter of patients causes nearly half of all hospitalizations
 76.6% of patients had only one encounter, but the remaining **23.4% account for ~46% of all encounters**.
@@ -93,9 +95,43 @@ The HbA1c test was **not performed in 83% of encounters**, and this group has th
 
 ---
 
+## 🤖 Readmission Risk Model
+
+**Logistic regression** predicting 30-day readmission from information available at discharge (15 features: prior visits, diagnoses count, medications, length of stay, age, discharge destination, HbA1c tested, insulin, medication changes).
+
+**Methodology**
+- **Patient-level train/test split** (`GroupShuffleSplit`, 80/20): the same patient never appears in both sets — prevents leakage from 30k repeat encounters.
+- **Class imbalance** handled with `class_weight='balanced'`.
+- Features standardized → coefficients are directly comparable.
+
+**Results (test set, 19,773 encounters)**
+| Metric | Value |
+|---|---|
+| ROC AUC | **0.660** |
+| Recall (readmitted) | 53.2% |
+| Precision (readmitted) | 18.0% |
+
+💡 **Business metric:** the **top 10% highest-risk patients contain 22.5% of all readmissions** — their readmission rate is **25.6% vs. 11.3%** on average (**2.3× lift**). Calling only one in ten patients after discharge reaches almost a quarter of all future readmissions.
+
+![Feature importance](images/feature_importance.png)
+
+**Model insights**
+- `number_inpatient` is by far the strongest predictor (coef. 0.37, 2.5× the next one), followed by discharge to rehab and number of diagnoses.
+- Discharge **home** and an **HbA1c test** lower the risk.
+- **Confounding example:** the number of medications raised risk in the univariate SQL analysis, but its effect is ~0 in the model. More medications mark *sicker* patients (more diagnoses, longer stays, prior admissions) — once severity is accounted for, medications themselves add little. Correlation ≠ causation.
+
+**Limitations:** AUC 0.66 is typical for this dataset — key drivers of readmission (social situation, post-discharge care, lab values after discharge) are not recorded. The model is a screening aid for prioritizing follow-up, not a clinical decision tool. Data is from US hospitals, 1999–2008.
+
+---
+
 ## 📁 Repository Structure
 
 ```
+notebooks/
+└── diabetes_readmission_analysis.ipynb   # Python: EDA + risk model (Colab)
+images/
+├── risk_factors.png
+└── feature_importance.png
 sql/
 ├── 01_create_raw_table.sql        # explicit schema for raw data
 ├── 02_patients_by_encounters.sql  # patients by number of encounters
@@ -116,6 +152,7 @@ sql/
 2. Create a BigQuery dataset `diabetes_readmission` (location EU).
 3. Run `01_create_raw_table.sql`, then upload the CSV into `raw_diabetic_data` (append, skip 1 header row).
 4. Run `05_create_clean_table.sql`, then the analysis queries.
+5. Open the notebook in Google Colab (link at the top of the notebook) to reproduce the charts and model.
 
 *Note: column names with hyphens (e.g. `glyburide-metformin`) were renamed with underscores.*
 
