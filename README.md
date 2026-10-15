@@ -4,6 +4,8 @@
 
 Analysis of ~100,000 hospital encounters from 130 US hospitals (1999–2008) using SQL (BigQuery), Python (risk model) and Tableau.
 
+[![Diabetes Readmission Risk Monitor dashboard](images/dashboard.png)](https://public.tableau.com/views/DiabetesReadmissionRiskMonitor/ReadmissionRiskMonitor)
+
 > 📊 **Interactive dashboard:** [Diabetes Readmission Risk Monitor on Tableau Public](https://public.tableau.com/views/DiabetesReadmissionRiskMonitor/ReadmissionRiskMonitor)
 
 ---
